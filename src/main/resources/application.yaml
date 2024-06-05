@@ -1,9 +1,28 @@
 app:
   version: 1.0
 
+server:
+  port: ${SERVER_PORT:8080}
+
 spring:
   application:
     name: rag
+#  jpa:
+#    hibernate:
+#      ddl-auto: ${DB_DDL_AUTO:validate}
+#  datasource:
+#    url: mysql://${DB_HOST:localhost}:3306/${DB_NAME:test_db}
+#    username: ${DB_USERNAME:defaultuser}
+#    password: ${DB_PASSWORD:defaultpwd}
+#    driver-class-name=com: com.mysql.cj.jdbc.Driver
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            clientId: ${GOOGLE_AUTH_CLIENT_ID:}
+            clientSecret: ${GOOGLE_AUTH_CLIENT_SECRET:}
+
 
 springdoc:
   swagger-ui:
