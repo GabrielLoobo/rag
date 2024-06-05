@@ -1,0 +1,11 @@
+app:
+  version: 1.0
+
+spring:
+  application:
+    name: rag
+
+springdoc:
+  swagger-ui:
+    path: ${SWAGGER_PATH:/swagger}
+    enabled: ${ENABLE_SWAGGER:true}
