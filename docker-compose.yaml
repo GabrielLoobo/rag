@@ -1,0 +1,13 @@
+services:
+  db:
+    image: mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'test_db'
+      MYSQL_ROOT_PASSWORD: 'rootuser'
+      MYSQL_USER: 'defaultuser'
+      MYSQL_PASSWORD: 'defaultpwd'
+    ports:
+      - '3306:3306'
+    volumes:
+      - './.mysql-data:/var/lib/mysql'
