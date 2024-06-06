@@ -7,14 +7,21 @@ server:
 spring:
   application:
     name: rag
-#  jpa:
-#    hibernate:
-#      ddl-auto: ${DB_DDL_AUTO:validate}
-#  datasource:
-#    url: mysql://${DB_HOST:localhost}:3306/${DB_NAME:test_db}
-#    username: ${DB_USERNAME:defaultuser}
-#    password: ${DB_PASSWORD:defaultpwd}
-#    driver-class-name=com: com.mysql.cj.jdbc.Driver
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+    hibernate:
+      physical_naming_strategy: io.hypersistence.utils.hibernate.naming.CamelCaseToSnakeCaseNamingStrategy
+      ddl-auto: ${DB_DDL_AUTO:validate}
+    show-sql: 'true'
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:test_db}
+    username: ${DB_USERNAME:defaultuser}
+    password: ${DB_PASSWORD:defaultpwd}
+    driver-class-name=com: com.mysql.cj.jdbc.Driver
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
   security:
     oauth2:
       client:
