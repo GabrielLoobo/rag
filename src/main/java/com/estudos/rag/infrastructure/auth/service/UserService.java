@@ -4,6 +4,9 @@ import com.estudos.rag.domain.entity.User;
 import com.estudos.rag.infrastructure.auth.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -17,7 +20,14 @@ public class UserService {
   }
 
   public User createUser(User newUser) {
-    log.debug("Saving created backoffice user to DB");
+    log.debug("Saving created user to DB");
     return userRepository.saveAndFlush(newUser);
+  }
+
+  public User getUserWithAuthenticationContext() {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    OAuth2User oauthUser = (OAuth2User) authentication.getPrincipal();
+
+    return userRepository.findBySocialAuthId(oauthUser.getAttribute("sub"));
   }
 }
