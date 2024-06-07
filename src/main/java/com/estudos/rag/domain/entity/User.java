@@ -22,7 +22,7 @@ public class User {
 
   private String name;
 
-  private Long socialAuthId;
+  private String socialAuthId;
 
   @Builder.Default
   private Integer status = 0;

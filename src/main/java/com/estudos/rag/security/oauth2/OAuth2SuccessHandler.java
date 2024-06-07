@@ -36,6 +36,7 @@ public class OAuth2SuccessHandler extends SavedRequestAwareAuthenticationSuccess
       User newUser = new User();
       newUser.setUsername(oAuth2User.getAttribute("email"));
       newUser.setName(oAuth2User.getAttribute("name"));
+      newUser.setSocialAuthId(oAuth2User.getAttribute("sub"));
 
       userService.createUser(newUser);
     }
