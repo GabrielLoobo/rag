@@ -5,6 +5,7 @@ Para realizar o setup do projeto:
 - Copiar o arquivo `.env.sample` para um novo arquivo `.env`.
   - Verificar se as variáveis fazem sentido com o seu ambiente (por exemplo verificar as portas do banco de dados e do servidor)
   - Seguir o tópico [de Configuração do OAuth2](#configuração-do-oauth2) e depois seguir com o próximo passo abaixo
+  - Configurar o Azure Storage. Isso pode ser feito com a [instalação via docker](#docker-wip)
 
 
 # Configuração do OAuth2
@@ -16,6 +17,6 @@ Para conseguir utilizar o login social pelo Google você precisará configurar u
   - Ao fim destes passos você deve pegar o clientId e clientSecret gerados e substituir nos campos correspondentes do seu `.env`
 
 # Docker (WIP)
-Atualmente a configuração do docker está feita apenas para o banco de dados. Você pode subir o container utizando o comando `docker compose  up --build -d` na raiz do projeto
+Atualmente a configuração do docker está feita apenas para o banco de dados e Azure Storage. Você pode subir o container utizando o comando `docker-compose  up --build -d` na raiz do projeto
 
 

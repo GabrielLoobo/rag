@@ -29,9 +29,27 @@ spring:
           google:
             clientId: ${GOOGLE_AUTH_CLIENT_ID:}
             clientSecret: ${GOOGLE_AUTH_CLIENT_SECRET:}
-
+  cloud:
+    azure:
+      storage:
+        blob:
+          connection-string: ${AZURE_BLOB_STORAGE_CONNECTION_STRING:}
+          endpoint: ${AZURE_BLOB_STORAGE_ENDPOINT:}
+          url: ${AZURE_BLOB_STORAGE_ENDPOINT:}/${BLOB_NAME:documents}/
 
 springdoc:
   swagger-ui:
     path: ${SWAGGER_PATH:/swagger}
     enabled: ${ENABLE_SWAGGER:true}
+
+logging:
+  send-trace: ${EXCEPTION_HANDLER_SEND_TRACE:true}
+  level:
+    root: INFO
+    org:
+      springframework:
+        web: DEBUG
+      estudos:
+        rag: DEBUG
+
+debug: true

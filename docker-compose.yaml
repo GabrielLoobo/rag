@@ -11,3 +11,16 @@ services:
       - '3306:3306'
     volumes:
       - './.mysql-data:/var/lib/mysql'
+
+  azure-storage:
+    image: mcr.microsoft.com/azure-storage/azurite
+    hostname: azurite
+    restart: always
+    command: "azurite-blob --blobHost 0.0.0.0 --blobPort 10000 --skipApiVersionCheck"
+    ports:
+      - "10000:10000"
+    volumes:
+      - storage_data:/data
+
+volumes:
+  storage_data:
