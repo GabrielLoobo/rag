@@ -6,18 +6,26 @@ import com.azure.storage.blob.models.BlobStorageException;
 import com.estudos.rag.domain.entity.Document;
 import com.estudos.rag.domain.entity.User;
 import com.estudos.rag.domain.enums.DocumentStatusEnum;
+import com.estudos.rag.domain.filters.DocumentFilter;
 import com.estudos.rag.infrastructure.auth.service.DocumentService;
 import com.estudos.rag.infrastructure.auth.service.UserService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import com.estudos.rag.application.document.payload.request.DocumentUploadRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.util.Optional;
+import java.util.UUID;
 
 @Component
 @AllArgsConstructor
@@ -26,22 +34,32 @@ public class DocumentUseCase {
   private final BlobServiceClient blobServiceClient;
   private final DocumentService documentService;
   private final UserService userService;
+  private final DocumentValidator validator;
+
+  public Page<Document> getPaginatedByUser(Pageable pageable) {
+    User user = userService.getUserWithAuthenticationContext();
+
+    return documentService.findAllByUser(user, pageable);
+  }
 
   public Document upload(DocumentUploadRequest documentUploadRequest) {
-    /*  Upload do arquivo no storage */
-    // TODO: Verificar plano do usuário para: número de arquivos permitidos
+    String fileChecksum = calculateFileChecksum(documentUploadRequest.file());
+
+    validator.validateCreate(documentUploadRequest, fileChecksum);
+
     User user = userService.getUserWithAuthenticationContext();
     String blobFileUrl = uploadDocumentToStorage(
         documentUploadRequest.file(),
-        documentUploadRequest.name(),
+        fileChecksum,
+        user.getId(),
         "documents");
 
-    /* Subir mensagem na fila para indexação */
+    /* Subir mensagem na fila para indexação */ //TODO: Implementar
     // TODO: Validar em que momento atualizamos o status de indexed para o arquivo
 
-    /* Criar registro local com informações do arquivo carregado */
     Document document = createDocument(
         documentUploadRequest.file(),
+        fileChecksum,
         documentUploadRequest.name(),
         user.getId(),
         blobFileUrl);
@@ -49,15 +67,33 @@ public class DocumentUseCase {
     return document;
   }
 
-  private String uploadDocumentToStorage(MultipartFile file, String fileName, String containerName) {
-    String originalFileName = file.getOriginalFilename();
-    String extension = FilenameUtils.getExtension(originalFileName);
+  public void deleteFile(Long documentId) {
+    User user = userService.getUserWithAuthenticationContext();
+    Optional<Document> optDocument = documentService.findByIdAndUserId(documentId, user.getId());
+
+    if (optDocument.isPresent()) {
+      Document document = optDocument.get();
+      
+      deleteDocumentFromStorage(document.getHash(), user.getId(), "documents");
+
+      /* Subir mensagem na fila para indexação */ //TODO: Implementar
+
+      documentService.delete(document);
+    } else {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
+
+
+
+  }
+
+  private String uploadDocumentToStorage(MultipartFile file, String documentChecksum, Long userId, String containerName) {
 
     try {
       BlobClient blobClient =
           blobServiceClient
               .getBlobContainerClient(containerName)
-              .getBlobClient(String.format("%s.%s", fileName, extension)); // TODO: Incluir hash no identificador da imagem
+              .getBlobClient(String.format("%d/%s", userId, documentChecksum));
       blobClient.upload(file.getInputStream(), false);
 
       return blobClient.getBlobUrl();
@@ -69,14 +105,13 @@ public class DocumentUseCase {
 
   private Document createDocument(
       MultipartFile file,
+      String fileChecksum,
       String name,
       Long userId,
       String blobFileUrl) {
     String originalFileName = file.getOriginalFilename();
     String extension = FilenameUtils.getExtension(originalFileName);
 
-
-    // TODO: Adicionar hash para os arquivos
     String fullFileName = String.join(".", name, extension);
 
     Document document = Document.builder()
@@ -85,8 +120,35 @@ public class DocumentUseCase {
         .storagePath(blobFileUrl)
         .userId(userId)
         .status(DocumentStatusEnum.UPLOADED)
+        .hash(fileChecksum)
         .build();
 
     return documentService.createDocument(document);
+  }
+
+  private void deleteDocumentFromStorage(String documentChecksum, Long userId, String containerName) {
+    try {
+      BlobClient blobClient =
+          blobServiceClient
+              .getBlobContainerClient(containerName)
+              .getBlobClient(String.format("%d/%s", userId, documentChecksum));
+      blobClient.delete();
+
+    } catch (BlobStorageException ex) {
+      log.error("Error when deleting file", ex);
+      throw new RuntimeException("Error during file delete");
+    }
+  }
+
+  private String calculateFileChecksum(MultipartFile file) {
+    try {
+      byte[] data = file.getBytes();
+      byte[] hash = MessageDigest.getInstance("MD5").digest(data);
+
+      return new BigInteger(1, hash).toString(16);
+    } catch (Exception exception) {
+      log.error("Error while generating file hash", exception);
+      throw new RuntimeException("Error while generating file hash");
+    }
   }
 }

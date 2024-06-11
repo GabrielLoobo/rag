@@ -4,13 +4,15 @@ import com.estudos.rag.application.document.converter.DocumentConverter;
 import com.estudos.rag.application.document.payload.request.DocumentUploadRequest;
 import com.estudos.rag.application.document.payload.response.DocumentResponse;
 import com.estudos.rag.domain.usecases.document.DocumentUseCase;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.converters.models.PageableAsQueryParam;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 
@@ -22,10 +24,28 @@ public class DocumentController {
   private final DocumentConverter converter;
 
   @PostMapping
-  public ResponseEntity<DocumentResponse> upload(@ModelAttribute @Valid DocumentUploadRequest documentUploadRequest) {
+  public ResponseEntity<String> upload(@ModelAttribute @Valid DocumentUploadRequest documentUploadRequest) {
     DocumentResponse fileResponse = converter.entityToPayload(useCase.upload(documentUploadRequest));
 
-    // TODO: Adicionar path do storage após upload
-    return ResponseEntity.created(URI.create("MOCKEDPATH")).build();
+    return ResponseEntity.created(URI.create(fileResponse.storagePath())).build();
+  }
+
+  @GetMapping
+  @PageableAsQueryParam
+  public ResponseEntity<Page<DocumentResponse>> list(
+      @Parameter(hidden = true) Pageable pageable) {
+
+    Page<DocumentResponse> result = converter.pageEntityToPayload(
+        useCase.getPaginatedByUser(pageable),
+        DocumentResponse.class);
+
+    return new ResponseEntity<>(result, HttpStatus.OK);
+  }
+
+  @DeleteMapping("/{id}")
+  public ResponseEntity<Void> delete(@PathVariable Long id) {
+    useCase.deleteFile(id);
+
+    return ResponseEntity.noContent().build();
   }
 }
