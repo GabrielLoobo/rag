@@ -1,16 +1,14 @@
-package com.estudos.rag.infrastructure.auth.service;
+package com.estudos.rag.infrastructure.document.service;
 
 import com.estudos.rag.domain.entity.Document;
 import com.estudos.rag.domain.entity.User;
 import com.estudos.rag.domain.filters.DocumentFilter;
-import com.estudos.rag.infrastructure.auth.repository.DocumentRepository;
+import com.estudos.rag.infrastructure.document.repository.DocumentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
 

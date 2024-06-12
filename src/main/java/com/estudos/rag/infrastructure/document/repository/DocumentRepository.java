@@ -1,4 +1,4 @@
-package com.estudos.rag.infrastructure.auth.repository;
+package com.estudos.rag.infrastructure.document.repository;
 
 import com.estudos.rag.domain.entity.Document;
 import org.springframework.data.jpa.repository.JpaRepository;

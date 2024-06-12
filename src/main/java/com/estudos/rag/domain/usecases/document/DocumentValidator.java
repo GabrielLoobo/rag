@@ -1,7 +1,7 @@
 package com.estudos.rag.domain.usecases.document;
 
 import com.estudos.rag.application.document.payload.request.DocumentUploadRequest;
-import com.estudos.rag.infrastructure.auth.repository.DocumentRepository;
+import com.estudos.rag.infrastructure.document.repository.DocumentRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;

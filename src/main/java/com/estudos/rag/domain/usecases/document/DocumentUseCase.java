@@ -6,8 +6,8 @@ import com.azure.storage.blob.models.BlobStorageException;
 import com.estudos.rag.domain.entity.Document;
 import com.estudos.rag.domain.entity.User;
 import com.estudos.rag.domain.enums.DocumentStatusEnum;
-import com.estudos.rag.domain.filters.DocumentFilter;
-import com.estudos.rag.infrastructure.auth.service.DocumentService;
+import com.estudos.rag.infrastructure.document.service.DocumentQueueService;
+import com.estudos.rag.infrastructure.document.service.DocumentService;
 import com.estudos.rag.infrastructure.auth.service.UserService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +16,6 @@ import com.estudos.rag.application.document.payload.request.DocumentUploadReques
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
@@ -25,7 +24,6 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.Optional;
-import java.util.UUID;
 
 @Component
 @AllArgsConstructor
@@ -33,6 +31,7 @@ import java.util.UUID;
 public class DocumentUseCase {
   private final BlobServiceClient blobServiceClient;
   private final DocumentService documentService;
+  private final DocumentQueueService documentQueueService;
   private final UserService userService;
   private final DocumentValidator validator;
 
@@ -54,15 +53,15 @@ public class DocumentUseCase {
         user.getId(),
         "documents");
 
-    /* Subir mensagem na fila para indexação */ //TODO: Implementar
-    // TODO: Validar em que momento atualizamos o status de indexed para o arquivo
-
     Document document = createDocument(
         documentUploadRequest.file(),
         fileChecksum,
         documentUploadRequest.name(),
         user.getId(),
         blobFileUrl);
+
+    // TODO: Validar em que momento atualizamos o status de indexed para o arquivo
+    documentQueueService.sendDocumentCreateMessage(document.getId());
 
     return document;
   }
@@ -76,9 +75,9 @@ public class DocumentUseCase {
       
       deleteDocumentFromStorage(document.getHash(), user.getId(), "documents");
 
-      /* Subir mensagem na fila para indexação */ //TODO: Implementar
-
       documentService.delete(document);
+
+      documentQueueService.sendDocumentDeleteMessage(document.getId());
     } else {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
