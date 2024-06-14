@@ -5,5 +5,5 @@ import lombok.Builder;
 @Builder
 public record QuestionReponseUsage(
     Integer prompt_tokens,
-    Integer response_tokens) {
+    Integer result_tokens) {
 }

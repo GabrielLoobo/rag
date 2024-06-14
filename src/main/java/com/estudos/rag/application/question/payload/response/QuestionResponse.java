@@ -9,7 +9,7 @@ public record QuestionResponse(
     String id,
     String role,
     String model,
-    String stopReason,
+    String stop_reason,
     QuestionReponseUsage usage,
     List<QuestionResponseContent> content) {
 }

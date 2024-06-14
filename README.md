@@ -7,6 +7,31 @@ Para realizar o setup do projeto:
   - Seguir o tópico [de Configuração do OAuth2](#configuração-do-oauth2) e depois seguir com o próximo passo abaixo
   - Configurar o Azure Storage e RabbitMQ. Isso pode ser feito com a [instalação via docker](#docker-wip)
   - Criar a queue, exchange e binding no rabbitmq com os seguintes valores, respectivamente: `document-indexing-queue`, `document-indexing-exchange` e `document-indexing`
+  - Mock do módulo de AI/Python: como este módulo ainda não existe, estou utilizando um mock server. Você pode fazer isso por exemplo pelo postman. 
+    - Atualize seu .env com a url do mock server em `QUESTION_SERVICE_URL`
+    - Utilize o mock para a seguinte request:
+    `POST /chat/question`
+    ```
+    Response:
+    
+    {
+      "id": "msg_1234_1234_1234",
+      "content": [
+          {
+              "type": "text",
+              "message": "Resposta da LLM"
+          }
+      ],
+      "role": "assistant",
+      "model": "model-used-identifier",
+      "stop_reason": "end_turn",
+      "usage": {
+          "prompt_tokens": 3,
+          "result_tokens": 7
+      }
+    }
+    ```
+  - Você pode usar a collection do postman em `docs/RAG.postman_collection.json` para testar o serviço 
 
 
 # Configuração do OAuth2

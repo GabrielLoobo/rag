@@ -13,6 +13,10 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import static java.util.Collections.emptyList;
 
 @Service
 @RequiredArgsConstructor
@@ -48,11 +52,13 @@ public class QuestionService {
     BeanUtils.copyProperties(externalQuestionResult.usage(), usage);
     questionResult.setUsage(usage);
 
+    List<QuestionResultContent> contentList = new java.util.ArrayList<>(Collections.emptyList());
     externalQuestionResult.content().forEach(c -> {
       QuestionResultContent questionResultContent = new QuestionResultContent();
       BeanUtils.copyProperties(c, questionResultContent);
-      questionResult.getContent().add(questionResultContent);
+      contentList.add(questionResultContent);
     });
+    questionResult.setContent(contentList);
 
     return questionResult;
   }
