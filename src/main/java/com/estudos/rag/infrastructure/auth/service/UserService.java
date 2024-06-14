@@ -30,4 +30,10 @@ public class UserService {
 
     return userRepository.findBySocialAuthId(oauthUser.getAttribute("sub"));
   }
+
+  public void handlePromptSubmitCount() {
+    User user = getUserWithAuthenticationContext();
+    user.handlePromptSubmitCount();
+    userRepository.saveAndFlush(user);
+  }
 }

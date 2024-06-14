@@ -4,6 +4,7 @@ Para realizar o setup do projeto:
 - Instalar as dependências com o maven
 - Copiar o arquivo `.env.sample` para um novo arquivo `.env`.
   - Verificar se as variáveis fazem sentido com o seu ambiente (por exemplo verificar as portas do banco de dados e do servidor)
+  - Crie ao menos uma linha na tabela `membership_plan`
   - Seguir o tópico [de Configuração do OAuth2](#configuração-do-oauth2) e depois seguir com o próximo passo abaixo
   - Configurar o Azure Storage e RabbitMQ. Isso pode ser feito com a [instalação via docker](#docker-wip)
   - Criar a queue, exchange e binding no rabbitmq com os seguintes valores, respectivamente: `document-indexing-queue`, `document-indexing-exchange` e `document-indexing`

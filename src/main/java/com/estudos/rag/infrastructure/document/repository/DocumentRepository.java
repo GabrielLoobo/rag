@@ -13,4 +13,6 @@ public interface DocumentRepository extends JpaRepository<Document, Long>,
   Boolean existsByHash(String hash);
 
   Optional<Document> findByIdAndUserId(Long id, Long userId);
+
+  long countByUserId(Long userId);
 }

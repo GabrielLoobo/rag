@@ -1,8 +1,10 @@
 package com.estudos.rag.security.oauth2;
 
+import com.estudos.rag.domain.entity.MembershipPlan;
 import com.estudos.rag.domain.entity.User;
 import com.estudos.rag.infrastructure.auth.repository.UserRepository;
 import com.estudos.rag.infrastructure.auth.service.UserService;
+import com.estudos.rag.infrastructure.membership.service.MembershipService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -18,6 +20,9 @@ import java.io.IOException;
 public class OAuth2SuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
   @Autowired
   private UserService userService;
+
+  @Autowired
+  private MembershipService membershipService;
 
   @Override
   public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -37,6 +42,9 @@ public class OAuth2SuccessHandler extends SavedRequestAwareAuthenticationSuccess
       newUser.setUsername(oAuth2User.getAttribute("email"));
       newUser.setName(oAuth2User.getAttribute("name"));
       newUser.setSocialAuthId(oAuth2User.getAttribute("sub"));
+
+      MembershipPlan defaultPlan = membershipService.getDefaultPlan();
+      newUser.setMembershipPlan(defaultPlan);
 
       userService.createUser(newUser);
     }

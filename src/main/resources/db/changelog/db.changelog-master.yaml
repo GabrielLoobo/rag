@@ -3,3 +3,7 @@ databaseChangeLog:
       file: classpath*:db/changelog/changes/init.sql
   - include:
       file: classpath:db/changelog/changes/create-document-table.sql
+  - include:
+      file: classpath*:db/changelog/changes/create-membership.sql
+  - include:
+     file: classpath*:db/changelog/changes/create-user-membership.sql
