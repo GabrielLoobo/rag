@@ -32,6 +32,15 @@ spring:
             clientId: ${GOOGLE_AUTH_CLIENT_ID:}
             clientSecret: ${GOOGLE_AUTH_CLIENT_SECRET:}
   cloud:
+    openfeign:
+      client:
+        config:
+          default:
+            connectTimeout: 10000
+            readTimeout: 10000
+            loggerLevel: headers
+          question:
+            url: ${QUESTION_SERVICE_URL:http://localhost:8100}
     azure:
       storage:
         blob:
